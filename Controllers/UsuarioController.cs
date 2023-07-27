@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using api_a.Data;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using api_a.Data;
 using System.Runtime.InteropServices;
 using api_a.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace api_a.Controllers
 {
+    //[ApiController]
+    //[Route("usuario")]
     public class UsuarioController : Controller
     {
         private readonly DataContext _context;
@@ -14,33 +16,21 @@ namespace api_a.Controllers
             this._context = context;
         
         }
-        // GET: UsuarioController
-        public ActionResult Index()
+
+
+
+
+        [HttpPost]
+        public async Task<ActionResult<List<Usuario>>> Post([FromBody] Usuario usuario)
         {
-            return View();
-        }
+            if (ModelState.IsValid)
+            {
+                _context.Usuarios.Add(usuario);
+                await _context.SaveChangesAsync();
 
-        // GET: UsuarioController/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: UsuarioController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: UsuarioController/Create
-        [HttpPost]        
-        public async Task<ActionResult<List<Usuario>>> AddUsuario(Usuario usuario)
-        {
-            _context.Usuarios.Add(usuario);
-            await _context.SaveChangesAsync();
-            return Ok(await _context.Usuarios.ToListAsync());
-
-
+                return CreatedAtAction(nameof(GetUsuarioById), new { id = usuario.id }, usuario);
+            }
+            return BadRequest(ModelState);
         }
 
         [HttpGet]
@@ -50,72 +40,19 @@ namespace api_a.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<List<Usuario>>> Get(int id)
+        public async Task<ActionResult<List<Usuario>>> GetUsuarioById(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
-            {
-                return BadRequest("Usuario não encontrado");
+            {0
+                return NotFound("Usuario não encontrado");
             }
-
-
             return Ok(await _context.Usuarios.ToListAsync());
         }
 
 
 
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
 
-        // GET: UsuarioController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
 
-        // POST: UsuarioController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: UsuarioController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: UsuarioController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
     }
 }
